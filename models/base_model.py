@@ -1,91 +1,96 @@
-#!/usr/bin/python3
-"""
-Module for the Base Class
-"""
-
-import models
-import uuid
 from datetime import datetime
+import uuid
+from models import storage
 
 
 class BaseModel:
-    '''
-    This is the base model that takes care of
-    the initialization, serialization and dese
-    rialization of your future instances
+    """
+    The BaseModel class serves as the backbone of our project,
+    encapsulating common attributes and methods
+    shared by other classes.
+    It is responsible for initialization,
+    serialization, deserialization,
+    and other functionalities to be explained later.
+    """
 
-    Attributes:
-        - id(str): This is an UUID for when an        instance is created
-        - created_at(datetime): This will assi
-        gn  instance with date & time it was
-        created
-        - updated_at(datetime): This will assi
-        gn instance with date & time it was up
-        dated
-    '''
+    def __init__(self, *args, **kwargs) -> None:
+        """
+        This is the constructor method for the BaseModel class,
+        it initializes the instance variables
+        and won't return any value.
 
-    def __init__(self, *args, **kwargs):
-        '''
-        initializes attributes: id, created_at,
-        updated_at
-        '''
+        If keyword arguments are provided,
+        they are used to set the instance attributes.
+        Otherwise, default values are used for
+        id, created_at, and updated_at.
 
-        dateformat = '%Y-%m-%dT%H:%M:%S.%f'
+        Args:
+            *args: Variable length argument list (not used).
+            **kwargs: Arbitrary keyword arguments for instance attributes.
+
+        Attributes:
+            id (str): Unique identifier for the instance.
+            created_at (datetime): Timestamp when the instance was created.
+            updated_at (datetime): Timestamp when the instance
+                                   was last updated.
+        """
+
+        def parse_datetime(date_str: str) -> datetime:
+            """
+            Parse a datetime string into a datetime object.
+
+            Args:
+                date_str (str): String representation of the datetime.
+
+            Returns:
+                datetime: A datetime object.
+            """
+            return datetime.strptime(date_str, "%Y-%m-%dT%H:%M:%S.%f")
+
         if kwargs:
             for key, value in kwargs.items():
-                if "__class__" == key:
+                if key == "__class__":
                     continue
-                if "created_at" == key:
-                    self.created_at = datetime.strptime(
-                        kwargs["created_at"], dateformat)
-                elif "updated_at" == key:
-                    self.updated_at = datetime.strptime(
-                        kwargs["updated_at"], dateformat)
+                if key in ("created_at", "updated_at"):
+                    self.__dict__[key] = parse_datetime(value)
                 else:
-                    setattr(self, key, value)
+                    self.__dict__[key] = value
         else:
             self.id = str(uuid.uuid4())
             self.created_at = datetime.now()
             self.updated_at = datetime.now()
-            models.storage.new(self)
+            storage.new(self)
 
-    def __str__(self):
-        '''
-        This function prints the content of the
-        'BaseModel' class using the format
+    def __str__(self) -> str:
+        """
+        Return a string representation of the instance.
 
-        $ [<class name>] (<self.id>)
-        <self.__dict__>
+        Returns:
+            str: String representation of the instance in the format
+                 [<class name>] (<self.id>) <self.__dict__>.
+        """
+        return "[{}] ({}) {}".format(type(self).__name__,
+                                     self.id, self.__dict__)
 
-        Example:
-            $ my_m = BaseModel()
-            $ my_m.name = "My First Model"
-            $ my_m.num = 89
-            $ print(my_m)
-        '''
-
-        return '[{}] ({}) {}'.format(
-                self.__class__.__name__, self.id, self.__dict__)
-
-    def save(self):
-        '''
-        updates the public instance attribute
-        'updated_at' with the current datetime
-        & save to a file
-        '''
-
+    def save(self) -> None:
+        """
+        Update the public instance attribute updated_at
+        with the current datetime and save the instance.
+        """
         self.updated_at = datetime.now()
-        models.storage.save()
+        storage.save()
+        storage.new(self)
 
-    def to_dict(self):
-        '''
-        returns a dictionary containing all keys/v
-        alues of '__dict__' of the instance:
-        '''
+    def to_dict(self) -> dict:
+        """
+        Return a dictionary containing all keys/values
+        of __dict__ of the instance.
 
-        obj_dict = self.__dict__.copy()
-        obj_dict['__class__'] = self.__class__.__name__
-        obj_dict['created_at'] = self.created_at.isoformat()
-        obj_dict['updated_at'] = self.updated_at.isoformat()
-
-        return obj_dict
+        Returns:
+            dict: Dictionary representation of the instance.
+        """
+        my_dict = self.__dict__.copy()
+        my_dict["__class__"] = type(self).__name__
+        my_dict["created_at"] = my_dict["created_at"].isoformat()
+        my_dict["updated_at"] = my_dict["updated_at"].isoformat()
+        return my_dict
