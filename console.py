@@ -7,5 +7,5 @@ import cmd as c
 
 
 class HBNBCommand(c.Cmd):
-        """
-            prompt = "(hbnb) "
+    """
+    prompt = "(hbnb) """
