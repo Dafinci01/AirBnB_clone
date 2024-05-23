@@ -1,60 +1,76 @@
 #!/usr/bin/python3
-'''
-file storage module
-'''
+"""
+This module handles the serialization and deserialization of data to and from storage.
+"""
 
 import json
-from os import path
+import os
+from models.base_model import BaseModel
+from models.user import User
+from models.amenity import Amenity
+from models.place import Place
+from models.review import Review
+from models.state import State
+from models.city import City
+
 
 class FileStorage:
-    '''
-    serializes instances to a JSON file and deseri    alizes JSON file to instances
-    Attributes:
-        __filepath(str): path to the json file
-        where the content will be stored
-        __objects(dict): This will store all instance
-        data
-    '''
-    __file_path = 'file.json'
-    __objects = {}
+    """
+    FileStorage class responsible for storing, serializing, and deserializing data to and from a file.
+    """
+    __file_path = "file.json"
+
+    __entities = {}
+
+    def new(self, entity):
+        """
+        Stores an objects in the __entities dictionary using a key formatted as <entity class name>.id.
+        """
+
+        entity_cls_name = entity.__class__.__name__
+
+        key = "{}.{}".format(entity_cls_name, entity.id)
+
+        FileStorage.__entities[key] = entity
+
 
     def all(self):
-        '''
-        returns the dictionary __object
-        '''
-        return self.__objects
+        """
+        Returns the __entities dictionary, providing access to all stored entities.
+        """
+        return  FileStorage.__entities
 
-    def new(self, obj):
-        '''
-        adds an object to the __object dictionary
-        attribute:
-            obj: This is the object that you want
-            to add to the  '__objects' dictionary
-        '''
-        class_name = obj.__class__.__name__
-        object_id = obj.id
-        key = class_name + '.' + object_id
-        self.__objects[key] = obj
 
     def save(self):
-        '''
-        seralizes the dictionary to a json file
-        '''
-        json_dict = {}
-        for k, v in self.__objects.items():
-            json_dict[k] = v.to_dict()
-        with open(self.__objects, mode='w', encoding='utf-8') as f:
-            json.dump(json_dict, f)
+        """
+        Serializes the __entities dictionary to JSON format and saves it to the file specified by __file_path.
+        """
+        all_entitys = FileStorage.__entities
+
+        entity_dict = {}
+
+        for entity in all_entitys.keys():
+            entity_dict[entity] = all_entitys[entity].dictify()
+
+        with open(FileStorage.__file_path, "w", encoding="utf-8") as file:
+            json.dump(entity_dict, file)
 
     def reload(self):
-        '''
-        deserializes the JSON file to __objects
-        '''
-        if path.exists(self.__file_path):
-            with open(self.__file_path, mode='r', encoding='utf-8') as f:
-                json_dict = json.load(f)
-            for k, v in json_dict.items():
-                obj = self.class_dict[value['__class__']](**value)
-                self.__objects[key] = obj
-        
+        """
+        Deserializes the JSON file specified by __file_path and loads the data into the __entities dictionary.
+        """
+        if os.path.isfile(FileStorage.__file_path):
+            with open(FileStorage.__file_path, "r", encoding="utf-8") as file:
+                try:
+                    entity_dict = json.load(file)
 
+                    for key, value in entity_dict.items():
+                        class_name, entity_id = key.split('.')
+
+                        cls = eval(class_name)
+
+                        instance = cls(**value)
+
+                        FileStorage.__entities[key] = instance
+                except Exception:
+                    pass
