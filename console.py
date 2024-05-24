@@ -17,6 +17,7 @@ from models.state import State
 from models.city import City
 
 
+
 def curly_braces_split(cmd_arg):
     """
     Split the curly braces to extract the id and attributes for the update method.
