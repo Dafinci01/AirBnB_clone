@@ -1,22 +1,20 @@
 #!/usr/bin/python3
 """
-This file is for declaring
-and defining our User class.
+Module for the User class, representing users of the system.
 """
+
 from models.base_model import BaseModel
 
 
 class User(BaseModel):
     """
-    This class represents the User entity.
+    Represents user information.
 
-    The Attributes we'll be using:
-        email (str): The email address of the user.
-        password (str): The password of the user.
-        first_name (str): The first name of the user.
-        last_name (str): The last name of the user.
-    Return:
-        None
+    attributes:
+        email (str): The email
+        password (str): The pass
+        first_name (str): The first name
+        last_name (str): The last name
     """
     email = ""
     password = ""

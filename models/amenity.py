@@ -1,19 +1,16 @@
 #!/usr/bin/python3
 """
-MThis file is for declaring
-and defining our Amenity class.
+Module for the Amenity class.
 """
 from models.base_model import BaseModel
 
 
 class Amenity(BaseModel):
     """
-    This class represents our Amenity entity.
+    Represent an amenity.
 
-    The Attributes we'll be using:
+    Attributes:
         name (str): The name of the amenity.
-
-    Return:
-        None
     """
+
     name = ""

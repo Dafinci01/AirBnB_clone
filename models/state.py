@@ -1,16 +1,17 @@
 #!/usr/bin/python3
 """
-This file is for declaring
-and defining our State class.
+Module for the State class, representing administrative divisions.
 """
+
 from models.base_model import BaseModel
 
 
 class State(BaseModel):
     """
-    This class represents our State entity.
+    Represent a state.
 
     Attributes:
         name (str): The name of the state.
     """
+
     name = ""

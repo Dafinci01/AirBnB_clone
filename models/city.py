@@ -1,18 +1,18 @@
 #!/usr/bin/python3
 """
-This file is for declaring
-and defining our City class.
+Module for the City class.
 """
 from models.base_model import BaseModel
 
 
 class City(BaseModel):
     """
-    This class represents our City entity.
+    Represent a city.
 
     Attributes:
-        state_id (str): The ID of the state associated with the city.
+        state_id (str): The state id.
         name (str): The name of the city.
     """
+
     state_id = ""
     name = ""

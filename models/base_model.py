@@ -4,7 +4,6 @@ Module for the BaseModel class, providing a base model for other classes.
 """
 import uuid
 from datetime import datetime
-
 import models
 
 
