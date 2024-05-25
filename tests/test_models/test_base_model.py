@@ -1,69 +1,103 @@
 #!/usr/bin/python3
-"""
-Module for BaseModel unittest
-"""
-import os
+
 import unittest
-from datetime import datetime
-from time import sleep
+import uuid
 from models.base_model import BaseModel
+from datetime import datetime
+
 
 class TestBaseModel(unittest.TestCase):
-    """
-    Unittest for BaseModel
-    """
+    ''' tests for the base model class '''
 
     def setUp(self):
-        """Setup method for tests."""
-        # Clear any existing file.json
-        try:
-            os.remove("file.json")
-        except FileNotFoundError:
-            pass
+        ''' setup for the test '''
 
-    def tearDown(self):
-        """Teardown method for tests."""
-        # Clear any existing file.json
-        try:
-            os.remove("file.json")
-        except FileNotFoundError:
-            pass
+        bm = BaseModel()
+        bm.name = 'tested'
+        bm.num = 20
 
     def test_init(self):
-        """Test instantiation of BaseModel."""
-        model_instance = BaseModel()
-        self.assertIsNotNone(model_instance.id)
-        self.assertIsInstance(model_instance.id, str)
-        self.assertIsNotNone(model_instance.created_at)
-        self.assertIsInstance(model_instance.created_at, datetime)
-        self.assertIsNotNone(model_instance.updated_at)
-        self.assertIsInstance(model_instance.updated_at, datetime)
+        ''' tests the init '''
 
-    def test_save(self):
-        """Test save() method."""
-        model_instance = BaseModel()
-        sleep(0.05)
-        first_updated_at = model_instance.updated_at
-        model_instance.save()
-        self.assertLess(first_updated_at, model_instance.updated_at)
+        b = BaseModel()
+        self.assertIsInstance(b.id, str)
+        self.assertTrue(hasattr(b, 'created_at'))
+        self.assertTrue(hasattr(b, 'updated_at'))
+
+    def test_base_model_method(self):
+        ''' checks if basemodel has methods '''
+
+        self.assertTrue(hasattr(BaseModel, '__init__'))
+        self.assertTrue(hasattr(BaseModel, '__str__'))
+        self.assertTrue(hasattr(BaseModel, 'save'))
+        self.assertTrue(hasattr(BaseModel, 'to_dict'))
+
+    def test_base_model_id_is_string(self):
+        '''
+        test to check if the uuid is a string
+        '''
+
+        bm = BaseModel()
+        self.assertIsInstance(bm.id, str)
+
+    def test_base_model_diff_uuid(self):
+        '''
+        checks if uuid are different when using a
+        different object
+        '''
+
+        bm_1 = BaseModel()
+        bm_2 = BaseModel()
+        c_uuid_1 = uuid.UUID(bm_1.id)
+        c_uuid_2 = uuid.UUID(bm_2.id)
+        self.assertNotEqual(c_uuid_1, c_uuid_2)
+
+    def test_created_at_datetime(self):
+        '''
+        checks if created_at attr is set to th
+        e current datetime the instance was cr        eated
+        '''
+
+        bm = BaseModel()
+        created_at = bm.created_at
+        self.assertIsInstance(bm.created_at, datetime)
+
+    def test_update_at_datetime(self):
+        '''
+        checks if updated_at attr is updated to
+        the current datetime the instance was
+        created
+        '''
+
+        bm = BaseModel()
+        updated_at = bm.updated_at
+        self.assertIsInstance(bm.updated_at, datetime)
 
     def test_to_dict(self):
-        """Test to_dict() method."""
-        model_instance = BaseModel()
-        model_instance.name = "Test Model"
-        model_dict = model_instance.to_dict()
-        self.assertEqual(model_dict['__class__'], 'BaseModel')
-        self.assertEqual(model_dict['name'], 'Test Model')
-        self.assertIsInstance(model_dict['created_at'], str)
-        self.assertIsInstance(model_dict['updated_at'], str)
+        ''' tests to_dict function '''
 
-    def test_str_representation(self):
-        """Test string representation of BaseModel."""
-        model_instance = BaseModel()
-        model_instance.id = "12345"
-        model_instance.name = "Test Model"
-        expected_str = f"[BaseModel] ({model_instance.id}) {model_instance.__dict__}"
-        self.assertEqual(str(model_instance), expected_str)
+        obj = BaseModel()
+        obj_dict = obj.to_dict()
+
+        self.assertIn('__class__', obj_dict)
+        self.assertIn('id', obj_dict)
+        self.assertIn('created_at', obj_dict)
+        self.assertIn('updated_at', obj_dict)
+
+        self.assertEqual(obj_dict['__class__'], 'BaseModel')
+        self.assertEqual(obj_dict['id'], obj.id)
+        self.assertEqual(obj_dict['created_at'], obj.created_at.isoformat())
+        self.assertEqual(obj_dict['updated_at'], obj.updated_at.isoformat())
+
+    def test_one_save(self):
+        ''' tests the save method '''
+
+        bm = BaseModel()
+        f_updated_at = bm.updated_at
+
+        bm.save()
+        self.assertLess(f_updated_at, bm.updated_at)
+
 
 if __name__ == '__main__':
     unittest.main()
